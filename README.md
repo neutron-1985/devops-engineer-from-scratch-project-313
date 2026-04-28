@@ -5,7 +5,6 @@
 
 This is a Hexlet educational project with a minimal Flask web application.
 The application starts an HTTP server on port `8080` and provides a `/ping`
-endpoint for a basic health check.
 
 ## Requirements
 
@@ -56,9 +55,3 @@ Expected response:
 ```text
 pong
 ```
-
-## Project Structure
-
-- `main.py` - Flask application entry point
-- `Makefile` - commands for running the application
-- `pyproject.toml` - project metadata and dependencies
