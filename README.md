@@ -1,6 +1,8 @@
 ### Hexlet tests and linter status:
 [![Actions Status](https://github.com/neutron-1985/devops-engineer-from-scratch-project-313/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/neutron-1985/devops-engineer-from-scratch-project-313/actions)
 
+[![Code Quality](https://github.com/neutron-1985/devops-engineer-from-scratch-project-313/actions/workflows/ci.yml/badge.svg)](https://github.com/neutron-1985/devops-engineer-from-scratch-project-313/actions/workflows/ci.yml)
+
 # DevOps Engineer From Scratch Project 313
 
 This is a Hexlet educational project with a minimal Flask web application.
