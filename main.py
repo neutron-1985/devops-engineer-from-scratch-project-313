@@ -1,8 +1,12 @@
+import os
 from http import HTTPStatus
 
 from flask import Flask, jsonify
 
 app = Flask(__name__)
+
+APP_HOST = os.environ.get("APP_HOST", "0.0.0.0")
+APP_PORT = int(os.environ.get("APP_PORT", "8080"))
 
 
 @app.get("/ping")
@@ -24,7 +28,7 @@ def internal_server_error(error):
 
 
 def main():
-    app.run(host="0.0.0.0", port=8080)
+    app.run(host=APP_HOST, port=APP_PORT)
 
 
 if __name__ == "__main__":
