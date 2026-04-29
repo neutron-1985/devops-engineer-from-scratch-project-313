@@ -1,4 +1,4 @@
-FROM ubuntu
+FROM python:3.14-slim
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PATH="/root/.local/bin:${PATH}" \
@@ -6,11 +6,10 @@ ENV DEBIAN_FRONTEND=noninteractive \
     APP_PORT=8080
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends ca-certificates curl make python3 && \
+    apt-get install -y --no-install-recommends ca-certificates curl make && \
     rm -rf /var/lib/apt/lists/*
 
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-RUN uv python install 3.14
 
 WORKDIR /app
 

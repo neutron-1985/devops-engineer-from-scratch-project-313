@@ -1,5 +1,8 @@
 -include .env
 
+APP_HOST ?= 0.0.0.0
+APP_PORT ?= 8080
+
 .PHONY: run debug test test-coverage lint lint-fix
 
 run:
