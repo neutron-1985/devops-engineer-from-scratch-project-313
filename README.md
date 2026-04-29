@@ -7,6 +7,15 @@
 
 This is a Hexlet educational project with a minimal Flask web application.
 The application starts an HTTP server on port `8080` and provides a `/ping`
+endpoint for a basic health check.
+
+## Deployed Application
+
+The application is deployed on Render:
+
+```text
+https://devops-engineer-from-scratch-project-313-7s4k.onrender.com/ping
+```
 
 ## Requirements
 
