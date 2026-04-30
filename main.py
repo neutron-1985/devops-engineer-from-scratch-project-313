@@ -8,13 +8,14 @@ from fastapi.responses import JSONResponse
 
 import links_repository
 from database import init_db
+from links_repository import ShortNameAlreadyExistsError
 from models import LinkCreate, LinkRead, LinkUpdate
 
 load_dotenv()
 
 APP_HOST = os.environ.get("APP_HOST", "0.0.0.0")
 APP_PORT = int(os.environ.get("APP_PORT", "8080"))
-SHORT_URL_BASE = "https://short.io/r"
+SHORT_URL_BASE = os.environ.get("SHORT_URL_BASE", "https://short.io/r")
 
 
 @asynccontextmanager
@@ -26,16 +27,24 @@ async def lifespan(_app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 
-def build_short_url(short_name: str) -> str:
-    return f"{SHORT_URL_BASE}/{short_name}"
+def build_short_url(short_name):
+    return f"{SHORT_URL_BASE.rstrip('/')}/{short_name}"
 
 
-def to_link_read(link) -> LinkRead:
+def to_link_read(link):
     return LinkRead(
         id=link.id,
         original_url=link.original_url,
         short_name=link.short_name,
+        created_at=link.created_at,
         short_url=build_short_url(link.short_name),
+    )
+
+
+def short_name_conflict_response():
+    return JSONResponse(
+        status_code=HTTPStatus.CONFLICT,
+        content={"error": "Short name already exists"},
     )
 
 
@@ -52,8 +61,18 @@ def get_links():
 
 @app.post("/api/links")
 def create_link(link_create: LinkCreate):
-    links_repository.create_link(link_create.original_url, link_create.short_name)
-    return Response(status_code=HTTPStatus.CREATED)
+    try:
+        link = links_repository.create_link(
+            link_create.original_url,
+            link_create.short_name,
+        )
+    except ShortNameAlreadyExistsError:
+        return short_name_conflict_response()
+
+    return JSONResponse(
+        status_code=HTTPStatus.CREATED,
+        content=to_link_read(link).model_dump(mode="json"),
+    )
 
 
 @app.get("/api/links/{link_id}")
@@ -68,11 +87,14 @@ def get_link(link_id: int):
 
 @app.put("/api/links/{link_id}")
 def update_link(link_id: int, link_update: LinkUpdate):
-    link = links_repository.update_link(
-        link_id,
-        link_update.original_url,
-        link_update.short_name,
-    )
+    try:
+        link = links_repository.update_link(
+            link_id,
+            link_update.original_url,
+            link_update.short_name,
+        )
+    except ShortNameAlreadyExistsError:
+        return short_name_conflict_response()
 
     if link is None:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND)
