@@ -1,0 +1,32 @@
+services:
+  app:
+    build: .
+    image: neutron1985/devops-engineer-from-scratch-project-313
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://postgres:mypassword@psql:5432/postgres?sslmode=disable
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    depends_on:
+      psql:
+        condition: service_healthy
+
+  psql:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mypassword
+    ports:
+      - "${DATABASE_EXTERNAL_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

@@ -1,5 +1,7 @@
 from http import HTTPStatus
 
+from fastapi.testclient import TestClient
+
 from main import app
 
 
@@ -9,24 +11,24 @@ def error():
 
 
 def test_ping():
-    client = app.test_client()
+    client = TestClient(app)
     response = client.get("/ping")
 
     assert response.status_code == HTTPStatus.OK
-    assert response.text == "pong"
+    assert response.json() == "pong"
 
 
 def test_not_found():
-    client = app.test_client()
+    client = TestClient(app)
     response = client.get("/missing")
 
     assert response.status_code == HTTPStatus.NOT_FOUND
-    assert response.get_json() == {"error": "Not found"}
+    assert response.json() == {"error": "Not found"}
 
 
 def test_internal_server_error():
-    client = app.test_client()
+    client = TestClient(app, raise_server_exceptions=False)
     response = client.get("/error")
 
     assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
-    assert response.get_json() == {"error": "Internal server error"}
+    assert response.json() == {"error": "Internal server error"}
