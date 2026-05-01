@@ -1,6 +1,6 @@
 import os
 
-import psycopg2
+import psycopg
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -10,5 +10,5 @@ def get_database_url():
 
 
 def get_connection():
-    return psycopg2.connect(get_database_url())
+    return psycopg.connect(get_database_url())
 
