@@ -14,7 +14,7 @@ endpoint for a basic health check.
 The application is deployed on Render:
 
 ```text
-https://devops-engineer-from-scratch-project-313-7s4k.onrender.com/ping
+https://devops-engineer-from-scratch-project-313-2p80.onrender.com/ping
 ```
 
 ## Requirements

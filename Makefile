@@ -12,13 +12,13 @@ debug:
 	uv run uvicorn main:app --reload --host $(APP_HOST) --port $(APP_PORT)
 
 test:
-	uv run pytest
+	APP_ENV=test uv run pytest
 
 test-coverage:
-	uv run pytest --cov
+	APP_ENV=test uv run pytest --cov
 
 test-doc:
-	uv run python -i -c "from fastapi.testclient import TestClient; from main import app; client = TestClient(app)"
+	APP_ENV=test uv run python -i -c "from fastapi.testclient import TestClient; from main import app; client = TestClient(app)"
 
 lint:
 	uv run ruff check .
