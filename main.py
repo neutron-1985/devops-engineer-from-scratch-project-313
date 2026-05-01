@@ -1,14 +1,16 @@
 import os
-from http import HTTPStatus
 from contextlib import asynccontextmanager
-from models import *
+from http import HTTPStatus
 
 import sentry_sdk
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request, HTTPException, Response
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
+from sqlmodel import SQLModel, create_engine
+
 from database import get_database_url
-from sqlmodel import Session, SQLModel, create_engine, select
+from models import Link, LinkCreate, LinkShow, LinkUpdate
+from repositories import LinksRepository
 
 load_dotenv()
 
@@ -25,6 +27,7 @@ if SENTRY_DSN:
         )
 
 engine = create_engine(get_database_url())
+links_repository = LinksRepository(engine)
 
 def init_db():
     SQLModel.metadata.create_all(engine)
@@ -81,63 +84,43 @@ def build_link_show(link: Link):
 
 @app.get("/api/links", response_model=list[LinkShow])
 def get_links():
-    with Session(engine) as session:
-        query = select(Link)
-        links = session.exec(query).all()
-        return [
-            build_link_show(link)
-            for link in links
-        ]
+    links = links_repository.get_all()
+    return [
+        build_link_show(link)
+        for link in links
+    ]
 
 @app.post("/api/links")
 def create_link(link: LinkCreate):
-    with Session(engine) as session:
-        existing_link = session.exec(
-            select(Link).where(Link.short_name == link.short_name)
-        ).first()
-        if existing_link is not None:
-            raise HTTPException(status_code=HTTPStatus.CONFLICT)
+    existing_link = links_repository.get_by_short_name(link.short_name)
+    if existing_link is not None:
+        raise HTTPException(status_code=HTTPStatus.CONFLICT)
 
-        new_link = Link(
-            original_url=link.original_url,
-            short_name=link.short_name,
-        )
-        session.add(new_link)
-        session.commit()
-        session.refresh(new_link)
-    return new_link
+    return links_repository.create(link)
 
 @app.get("/api/links/{link_id}", response_model=LinkShow)
 def get_link(link_id: int):
-    with Session(engine) as session:
-        link = session.get(Link, link_id)
-        if link is None:
-            raise HTTPException(status_code=HTTPStatus.NOT_FOUND)
-        return build_link_show(link)
-    
+    link = links_repository.get_by_id(link_id)
+    if link is None:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND)
+    return build_link_show(link)
+
 @app.post("/api/links/{link_id}", response_model=LinkShow)
 def edit_link(link_id: int, link_update: LinkUpdate):
-    with Session(engine) as session:
-        link = session.get(Link, link_id)
-        if link is None:
-            raise HTTPException(status_code=HTTPStatus.NOT_FOUND)
+    link = links_repository.get_by_id(link_id)
+    if link is None:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND)
 
-        link.original_url = link_update.original_url
-        link.short_name = link_update.short_name
-        session.add(link)
-        session.commit()
-        session.refresh(link)
-        return build_link_show(link)
+    updated_link = links_repository.update(link, link_update)
+    return build_link_show(updated_link)
 
 @app.delete("/api/links/{link_id}")
 def delete_link(link_id: int):
-    with Session(engine) as session:
-        link = session.get(Link, link_id)
-        if link is None:
-            raise HTTPException(status_code=HTTPStatus.NOT_FOUND)
-        
-        session.delete(link)
-        session.commit()
+    link = links_repository.get_by_id(link_id)
+    if link is None:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND)
+
+    links_repository.delete(link)
     return Response(status_code=HTTPStatus.NO_CONTENT)
 
 def main():

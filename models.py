@@ -1,5 +1,5 @@
-from database import get_database_url
-from sqlmodel import Field, Session, SQLModel, create_engine
+from sqlmodel import Field, SQLModel
+
 
 class LinkBase(SQLModel):
     original_url: str
@@ -17,6 +17,5 @@ class LinkShow(LinkBase):
 
 class LinkUpdate(LinkBase):
     pass
-
 
 
