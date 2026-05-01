@@ -17,6 +17,9 @@ test:
 test-coverage:
 	uv run pytest --cov
 
+test-doc:
+	uv run python -i -c "from fastapi.testclient import TestClient; from main import app; client = TestClient(app)"
+
 lint:
 	uv run ruff check .
 
