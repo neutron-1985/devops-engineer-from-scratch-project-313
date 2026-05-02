@@ -62,6 +62,13 @@ async def internal_error_handler(request: Request, exc: Exception):
         },
     )
 
+def short_name_conflict_response():
+    return JSONResponse(
+        status_code=HTTPStatus.CONFLICT,
+        content={"error": "Short name already exists"},
+    )
+
+
 @app.get("/ping")
 def ping():
     return "pong"
