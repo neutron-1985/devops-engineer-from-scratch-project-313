@@ -6,7 +6,7 @@ APP_PORT ?= 8080
 .PHONY: run debug test test-coverage lint lint-fix
 
 run:
-	uv run uvicorn main:app --host $(APP_HOST) --port $(APP_PORT)
+	npm run start
 
 debug:
 	uv run uvicorn main:app --reload --host $(APP_HOST) --port $(APP_PORT)

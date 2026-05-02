@@ -22,6 +22,7 @@ https://devops-engineer-from-scratch-project-313-2p80.onrender.com/ping
 - Python `3.14` or higher
 - `uv`
 - `make`
+- Node.js and npm
 - PostgreSQL
 
 ## Installation
@@ -32,6 +33,7 @@ Clone the repository and install the dependencies:
 git clone https://github.com/neutron-1985/devops-engineer-from-scratch-project-313.git
 cd devops-engineer-from-scratch-project-313
 uv sync
+npm install
 ```
 
 Create a local environment file:
@@ -49,7 +51,7 @@ SHORT_URL_BASE=https://short.io/r
 
 ## Usage
 
-Run the application:
+Run the backend and frontend:
 
 ```bash
 make run
@@ -61,10 +63,16 @@ Run the application in debug mode:
 make debug
 ```
 
-The application will be available at:
+The backend will be available at:
 
 ```text
 http://localhost:8080
+```
+
+The frontend will be available at:
+
+```text
+http://localhost:5173
 ```
 
 Database tables are created automatically when the application starts.

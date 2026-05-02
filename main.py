@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi.responses import JSONResponse
 from sqlmodel import SQLModel, create_engine
+from fastapi.middleware.cors import CORSMiddleware
 
 from database import get_database_url
 from models import Link, LinkCreate, LinkShow, LinkUpdate
@@ -41,6 +42,11 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"]
+    )
 
 @app.exception_handler(HTTPStatus.NOT_FOUND)
 async def page_not_found(request: Request, exc):

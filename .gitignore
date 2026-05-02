@@ -8,3 +8,4 @@ htmlcov/
 docs/_build/
 .env*
 !.env.example
+node_modules/
