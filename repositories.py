@@ -1,6 +1,11 @@
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
 from models import Link, LinkCreate, LinkUpdate
+
+
+class DuplicateShortNameError(Exception):
+    pass
 
 
 class LinksRepository:
@@ -28,22 +33,37 @@ class LinksRepository:
                 short_name=link_create.short_name,
             )
             session.add(link)
-            session.commit()
+            try:
+                session.commit()
+            except IntegrityError as exception:
+                session.rollback()
+                raise DuplicateShortNameError from exception
             session.refresh(link)
             return link
 
-    def update(self, link: Link, link_update: LinkUpdate):
+    def update(self, link_id: int, link_update: LinkUpdate):
         with Session(self.engine) as session:
-            link = session.merge(link)
+            link = session.get(Link, link_id)
+            if link is None:
+                return None
+
             link.original_url = link_update.original_url
             link.short_name = link_update.short_name
             session.add(link)
-            session.commit()
+            try:
+                session.commit()
+            except IntegrityError as exception:
+                session.rollback()
+                raise DuplicateShortNameError from exception
             session.refresh(link)
             return link
 
-    def delete(self, link: Link):
+    def delete(self, link_id: int):
         with Session(self.engine) as session:
-            link = session.merge(link)
+            link = session.get(Link, link_id)
+            if link is None:
+                return False
+
             session.delete(link)
             session.commit()
+            return True
