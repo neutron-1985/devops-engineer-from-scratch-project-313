@@ -32,9 +32,12 @@ class LinksRepository:
             session.refresh(link)
             return link
 
-    def update(self, link: Link, link_update: LinkUpdate):
+    def update(self, link_id: int, link_update: LinkUpdate):
         with Session(self.engine) as session:
-            link = session.merge(link)
+            link = session.get(Link, link_id)
+            if link is None:
+                return None
+
             link.original_url = link_update.original_url
             link.short_name = link_update.short_name
             session.add(link)
@@ -42,8 +45,12 @@ class LinksRepository:
             session.refresh(link)
             return link
 
-    def delete(self, link: Link):
+    def delete(self, link_id: int):
         with Session(self.engine) as session:
-            link = session.merge(link)
+            link = session.get(Link, link_id)
+            if link is None:
+                return False
+
             session.delete(link)
             session.commit()
+            return True
