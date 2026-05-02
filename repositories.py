@@ -1,4 +1,4 @@
-from sqlmodel import Session, select
+from sqlmodel import Session, func, select
 
 from models import Link, LinkCreate, LinkUpdate
 
@@ -10,6 +10,20 @@ class LinksRepository:
     def get_all(self):
         with Session(self.engine) as session:
             return session.exec(select(Link)).all()
+
+    def get_range(self, start: int, end: int):
+        with Session(self.engine) as session:
+            statement = (
+                select(Link)
+                .offset(start)
+                .limit(end - start)
+            )
+            return session.exec(statement).all()
+
+    def count(self):
+        with Session(self.engine) as session:
+            statement = select(func.count()).select_from(Link)
+            return session.exec(statement).one()
 
     def get_by_id(self, link_id: int):
         with Session(self.engine) as session:

@@ -1,11 +1,12 @@
 import os
 from contextlib import asynccontextmanager
 from http import HTTPStatus
+from typing import Annotated
 
 import sentry_sdk
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse, Response
+from fastapi import FastAPI, HTTPException, Query, Request, Response
+from fastapi.responses import JSONResponse
 from sqlmodel import SQLModel, create_engine
 
 from database import get_database_url
@@ -90,12 +91,26 @@ def raise_duplicate_short_name():
     )
 
 @app.get("/api/links", response_model=list[LinkShow])
-def get_links():
-    links = links_repository.get_all()
+def get_links(
+        response: Response,
+        links_range: Annotated[str | None, Query(alias="range")] = None,
+    ):
+    if links_range is not None:
+        start, end = [
+            int(value)
+            for value in links_range.strip("[]").split(",")
+        ]
+        links = links_repository.get_range(start, end)
+        total = links_repository.count()
+        response.headers["Content-Range"] = f"links {start}-{end}/{total}"
+    else:
+        links = links_repository.get_all()
+
     return [
         build_link_show(link)
         for link in links
     ]
+
 
 @app.post(
     "/api/links",
