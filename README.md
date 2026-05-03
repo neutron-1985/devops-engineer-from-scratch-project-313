@@ -14,16 +14,16 @@ startup, and provides CRUD endpoints for links.
 The application is deployed on Render:
 
 ```text
-https://devops-engineer-from-scratch-project-313-2p80.onrender.com/ping
+https://devops-engineer-from-scratch-project-313-2p80.onrender.com
 ```
 
 ## Requirements
 
-- Python `3.14` or higher
+- `Python 3.14` or higher
 - `uv`
 - `make`
-- Node.js and npm
-- PostgreSQL
+- `Node.js` and `npm`
+- `PostgreSQL`
 
 ## Installation
 
@@ -51,7 +51,7 @@ SHORT_URL_BASE=https://short.io/r
 
 ## Usage
 
-Run the backend and frontend:
+Run the backend and frontend in development mode:
 
 ```bash
 make run
@@ -75,11 +75,33 @@ The frontend will be available at:
 http://localhost:5173
 ```
 
+Build and run the production Docker image:
+
+```bash
+docker build -t devops-engineer-from-scratch-project-313 .
+docker run --rm -p 8088:80 --env-file .env devops-engineer-from-scratch-project-313
+```
+
+The application will be available through Nginx at:
+
+```text
+http://localhost:8088
+```
+
+In production, Nginx listens on port `80`, serves the built frontend from
+`/app/public`, and proxies `/api/` requests to the backend on port `8080`.
+
+For Render deployment, set the application port:
+
+```text
+PORT=80
+```
+
 Database tables are created automatically when the application starts.
 
 ## Health Check
 
-Check that the application is running:
+Check that the backend is running in development mode:
 
 ```bash
 curl http://localhost:8080/ping
@@ -92,6 +114,9 @@ pong
 ```
 
 ## Links API
+
+In development, use `http://localhost:8080`. In Docker, use the Nginx port,
+for example `http://localhost:8088`.
 
 List all links:
 

@@ -6,9 +6,9 @@ from typing import Annotated
 import sentry_sdk
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlmodel import SQLModel, create_engine
-from fastapi.middleware.cors import CORSMiddleware
 
 from database import get_database_url
 from models import Link, LinkCreate, LinkShow, LinkUpdate
