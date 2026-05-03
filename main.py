@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlmodel import SQLModel, create_engine
 
-from database import get_database_url
+from database import get_sqlalchemy_database_url
 from models import Link, LinkCreate, LinkShow, LinkUpdate
 from repositories import LinksRepository
 
@@ -28,7 +28,7 @@ if SENTRY_DSN:
             send_default_pii=True,
         )
 
-engine = create_engine(get_database_url())
+engine = create_engine(get_sqlalchemy_database_url())
 links_repository = LinksRepository(engine)
 
 
