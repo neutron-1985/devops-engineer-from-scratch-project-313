@@ -35,11 +35,7 @@ def make_link_response(link):
 
 
 def make_not_found_response(path):
-    return {
-        "error": "Not Found",
-        "message": "Страница не найдена",
-        "path": f"http://testserver{path}",
-    }
+    return {"detail": "Not Found"}
 
 
 def make_duplicate_response():
@@ -62,6 +58,7 @@ def test_get_links(monkeypatch):
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == [make_link_response(link)]
+
 
 def test_get_link(monkeypatch):
     link = make_link()

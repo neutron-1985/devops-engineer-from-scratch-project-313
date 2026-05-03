@@ -41,6 +41,7 @@ async def lifespan(app: FastAPI):
     init_db()
     yield
 
+
 app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
@@ -48,16 +49,14 @@ app.add_middleware(
     allow_origins=["http://localhost:5173"]
     )
 
+
 @app.exception_handler(HTTPStatus.NOT_FOUND)
 async def page_not_found(request: Request, exc):
     return JSONResponse(
         status_code=404,
-        content={
-            "error": "Not Found",
-            "message": "Страница не найдена",
-            "path": str(request.url),
-        },
+        content={"detail": "Not Found"},
     )
+
 
 @app.exception_handler(Exception)
 async def internal_error_handler(request: Request, exc: Exception):
@@ -70,6 +69,7 @@ async def internal_error_handler(request: Request, exc: Exception):
         },
     )
 
+
 def short_name_conflict_response():
     return JSONResponse(
         status_code=HTTPStatus.CONFLICT,
@@ -81,6 +81,7 @@ def short_name_conflict_response():
 def ping():
     return "pong"
 
+
 def build_link_show(link: Link):
     return LinkShow(
         id=link.id,
@@ -90,11 +91,13 @@ def build_link_show(link: Link):
         created_at=link.created_at,
     )
 
+
 def raise_duplicate_short_name():
     raise HTTPException(
         status_code=HTTPStatus.CONFLICT,
         detail="short_name already exists",
     )
+
 
 @app.get("/api/links", response_model=list[LinkShow])
 def get_links(
@@ -131,12 +134,14 @@ def create_link(link: LinkCreate):
     created_link = links_repository.create(link)
     return build_link_show(created_link)
 
+
 @app.get("/api/links/{link_id}", response_model=LinkShow)
 def get_link(link_id: int):
     link = links_repository.get_by_id(link_id)
     if link is None:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND)
     return build_link_show(link)
+
 
 @app.put("/api/links/{link_id}", response_model=LinkShow)
 def edit_link(link_id: int, link_update: LinkUpdate):
@@ -150,6 +155,7 @@ def edit_link(link_id: int, link_update: LinkUpdate):
 
     return build_link_show(updated_link)
 
+
 @app.delete("/api/links/{link_id}")
 def delete_link(link_id: int):
     is_deleted = links_repository.delete(link_id)
@@ -157,6 +163,7 @@ def delete_link(link_id: int):
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND)
 
     return Response(status_code=HTTPStatus.NO_CONTENT)
+
 
 def main():
     import uvicorn
